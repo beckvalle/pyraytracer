@@ -1,30 +1,51 @@
 # write PPM file
 
-image_width = 256;  # output image width
-image_height = 256;  # output image height
+import warnings
+import math
+from src.raytracer.raytracer import vec3
 
-with open("render.ppm", "w") as f:  # open the file for writing
-    f.write("P3\n")  # colors are ASCII
-    # add comments into file
-    f.write("# P3 means the colors are ASCII\n")  
-    f.write("# "+str(image_width)+" "+str(image_height)+" indicates columns and rows\n")
-    f.write("# 225 is max color\n")
-    f.write("# after is RGB triplets\n")
-    # file parameters
-    f.write(str(image_width)+" "+str(image_height)+"\n")
-    f.write("255\n")
-    # add data
-    for j in range(image_height-1, -1, -1):
-        print("scanlines remaining:"+str(j), end="\r")  # indicate progress
-        for i in range(0, image_width):
-            r = float(i)/(image_width-1)
-            g = float(j)/(image_height-1)
-            b = 0.25
+class NoHeaderError(Exception):
+    pass
 
-            ir = str(int(255.999 * r))
-            ig = str(int(255.999 * g))
-            ib = str(int(255.999 * b))
-    
-            f.write(ir+" "+ig+" "+ib+"\n")
+class writeppm():
 
-    f.close()
+    def __init__(self, image_width=None, image_height=None, out_file='outfile.ppm', col_code='P3', max_col=255):
+        self.image_width = image_width  # image columns
+        self.image_height = image_height  # image rows
+        self.col_code = col_code  # P3 means the colors are ASCII
+        self.max_col = max_col  # 225 is max color value
+        self.out_file = out_file  # output file name
+        self.color_string = ''
+        self.header_written = False
+
+    def write_head(self):
+        with open(self.out_file, 'w') as outf:
+            outf.write(str(self.col_code)+"\n")
+            outf.write(str(self.image_width)+" "+str(self.image_height)+"\n")
+            outf.write(str(self.max_col)+"\n")
+        self.header_written = True
+
+    def write_color_file(self):
+        if self.header_written:
+            if self.color_string is not '':
+                with open(self.out_file, 'a') as outf:
+                    outf.write(str(self.color_string)+"\n")
+            else:
+                warnings.warn("Color string is empty", UserWarning)
+        else:
+            raise NoHeaderError("File header must be written before color values added")
+
+    def write_color(self, pixel_color):
+        self.color_string += (str(math.floor(255.999 * pixel_color.x)) + " "
+                              + str(math.floor(255.999 * pixel_color.y)) + " "
+                              + str(math.floor(255.999 * pixel_color.z)) + "\n")
+
+    def check_valid(self):
+        if self.image_width is not None and self.image_height is not None and self.color_string is not None:
+            if self.image_width * self.image_height == len(self.color_string.rstrip().split("\n")):
+                return [True, 'params OK']
+            else:
+                return [False, str(self.image_width * self.image_height)+" != "+str(len(self.color_string.rstrip().split("\n")))]
+        else:
+            return [False, "value is None"]
+        

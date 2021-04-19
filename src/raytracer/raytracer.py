@@ -63,12 +63,30 @@ class vec3():
             return vec3(e0, e1, e2)
         else:
             raise TypeError()
-            
-    def __mul__(self, operand):
-        e0 = self._e[0] * operand
-        e1 = self._e[1] * operand
-        e2 = self._e[2] * operand
-        return vec3(e0, e1, e2)
+
+    def __sub__(self, other):
+        if isinstance(other, vec3):
+            e0 = self._e[0] - other._e[0]
+            e1 = self._e[1] - other._e[1]
+            e2 = self._e[2] - other._e[2]
+            return vec3(e0, e1, e2)
+        else:
+            raise TypeError()
+
+    def __mul__(self, other):
+        if isinstance(other, vec3):
+            e0 = self._e[0] * other._e[0]
+            e1 = self._e[1] * other._e[1]
+            e2 = self._e[2] * other._e[2]
+            return vec3(e0, e1, e2)
+        else:
+            e0 = self._e[0] * other
+            e1 = self._e[1] * other
+            e2 = self._e[2] * other
+            return vec3(e0, e1, e2)
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
     
     def __truediv__(self, operand):
         if operand != 0:
@@ -83,4 +101,27 @@ class vec3():
 point3 = vec3
 color = vec3
 
-# utility functions for vec3
+# define vector helper functions
+
+def dot(u, v):
+    if isinstance(u, vec3) and isinstance(v, vec3):
+        return (u._e[0] * v._e[0]
+                + u._e[1] * v._e[1]
+                + u._e[2] * v._e[2])
+    else:
+        raise TypeError()
+
+def cross(u, v):
+    if isinstance(u, vec3) and isinstance(v, vec3):
+        return vec3(u._e[1] * v._e[2] - u._e[2] * v._e[1],
+                    u._e[2] * v._e[0] - u._e[0] * v._e[2],
+                    u._e[0] * v._e[1] - u._e[1] * v._e[0]);
+    else:
+        raise TypeError()
+    
+def unit(v):
+    if isinstance(v, vec3):
+        return v / v.len
+    else:
+        raise TypeError()
+

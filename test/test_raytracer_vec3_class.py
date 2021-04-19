@@ -99,25 +99,48 @@ def test_vec3_plus_eq():
     myvec1 += raytracer.vec3(4, 5, 6)
     assert myvec1 == raytracer.vec3(5, 7, 9)
     
-def test_vec3_mult():
+def test_vec3_minus():
+    myvec1 = raytracer.vec3(5, 7, 9) - raytracer.vec3(4, 5, 6)
+    assert myvec1 == raytracer.vec3(1, 2, 3)
+
+def test_vec3_bad_minus():
+    myvec1 = raytracer.vec3(1, 2, 3)
+    with pytest.raises(TypeError):
+        myvec4 = myvec1 - 3
+        
+def test_vec3_minus_eq():
+    myvec1 = raytracer.vec3(5, 7, 9)
+    myvec1 -= raytracer.vec3(4, 5, 6)
+    assert myvec1 == raytracer.vec3(1, 2, 3)
+
+def test_vec3_mult_scal():
     myvec1 = raytracer.vec3(1, 2, 3)
     assert myvec1 * 3 == raytracer.vec3(3, 6, 9)
 
-def test_vec3_mult_eq():
+def test_vec3_rmult_scal():
+    myvec1 = raytracer.vec3(1, 2, 3)
+    assert 3 * myvec1 == raytracer.vec3(3, 6, 9)
+
+def test_vec3_mult_eq_scal():
     myvec1 = raytracer.vec3(1, 2, 3)
     myvec1 *= 3
-    assert myvec1 == raytracer.vec3(3, 6, 9)   
+    assert myvec1 == raytracer.vec3(3, 6, 9)
+    
+def test_vec3_mult_el_vec3():
+    myvec1 = raytracer.vec3(1, 2, 3)
+    myvec2 = raytracer.vec3(4, 5, 6)
+    assert myvec1 * myvec2 == raytracer.vec3(4, 10, 18)
 
-def test_vec3_div():
+def test_vec3_div_scal():
     myvec1 = raytracer.vec3(3, 6, 9)
     assert myvec1 / 3 == raytracer.vec3(1, 2, 3)
 
-def test_vec3_div_eq():
+def test_vec3_div_eq_scal():
     myvec1 = raytracer.vec3(3, 6, 9)
     myvec1 /= 3
     assert myvec1 == raytracer.vec3(1, 2, 3)
 
-def test_vec3_div_bad():
+def test_vec3_div_bad_scal():
     myvec1 = raytracer.vec3(1, 2, 3)
     with pytest.raises(ZeroDivisionError):
         myvec1 / 0
@@ -129,7 +152,35 @@ def test_vec3_len_squared():
 def test_vec3_len():
     myvec1 = raytracer.vec3(3, 4, 5)
     assert myvec1.len == sqrt(50)
-    
+
+def test_vec3_dot():
+    myvec1 = raytracer.vec3(1, 2, 3)
+    myvec2 = raytracer.vec3(4, 5, 6)
+    assert raytracer.dot(myvec1, myvec2) == 32
+
+def test_vec3_bad_dot():
+    myvec1 = raytracer.vec3(1, 2, 3)
+    with pytest.raises(TypeError):
+        raytracer.dot(myvec1, 4)
+
+def test_vec3_cross():
+    myvec1 = raytracer.vec3(1, 2, 3)
+    myvec2 = raytracer.vec3(4, 5, 6)
+    assert raytracer.cross(myvec1, myvec2) == raytracer.vec3(-3, 6, -3)
+
+def test_vec3_bad_cross():
+    myvec1 = raytracer.vec3(1, 2, 3)
+    with pytest.raises(TypeError):
+        raytracer.cross(myvec1, 3)
+
+def test_vec3_unit():
+    myvec1 = raytracer.vec3(1, 1, 1)
+    assert raytracer.unit(myvec1) == raytracer.vec3(1/sqrt(3), 1/sqrt(3), 1/sqrt(3))
+
+def test_vec3_bad_unit():
+    with pytest.raises(TypeError):
+        raytracer.unit(3)
+
 def test_point3_is_vec3():
     mypt = raytracer.point3(3, 4, 5)
     assert isinstance(mypt, raytracer.vec3)
