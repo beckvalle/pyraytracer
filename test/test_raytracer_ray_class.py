@@ -16,8 +16,30 @@ def test_ray_init():
     assert myray.origin == mypt
     assert myray.direction == myvec
 
+def test_ray_init_bad_origin():
+    myvec = raytracer.vec3(6, 7, 7)
+    with pytest.raises(TypeError):
+        myray = ray.ray("", myvec)
+
+def test_ray_init_bad_dir():
+    mypt = raytracer.point3(3, 4, 5)
+    with pytest.raises(TypeError):
+        myray = ray.ray(mypt, "")
+
 def test_ray_at():
     mypt = raytracer.point3(0, 0, 0)
     myvec = raytracer.vec3(2, 2, 0)
     myray = ray.ray(mypt, myvec)
     assert myray.at(0.5) == raytracer.point3(1, 1, 0)
+
+def test_ray_at_bad_instance():
+    myray = ray.ray()
+    with pytest.raises(AttributeError):
+        myray.at(0.5)
+
+def test_ray_at_bad_t_value():
+    mypt = raytracer.point3(0, 0, 0)
+    myvec = raytracer.vec3(2, 2, 0)
+    myray = ray.ray(mypt, myvec)
+    with pytest.raises(TypeError):
+        myray.at(" ")

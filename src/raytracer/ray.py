@@ -6,12 +6,20 @@ from src.raytracer import raytracer
 # ray class
 class ray():
     def __init__(self, origin=None, direction=None):
-        if None not in [origin, direction]:
-            self.origin = raytracer.point3(origin)
-            self.direction = raytracer.vec3(direction)
+        if isinstance(origin, raytracer.point3) or origin is None:
+            self.origin = origin
         else:
-            self.origin = None
-            self.direction = None
-        
+            raise TypeError()
+
+        if isinstance(direction, raytracer.vec3) or origin is None:
+            self.direction = direction
+        else:
+            raise TypeError()
+
     def at(self, t):
+        if self.origin is None or self.direction is None:
+            raise AttributeError()
+        if not isinstance(t, float):
+            raise TypeError()
+
         return self.origin + t * self.direction
