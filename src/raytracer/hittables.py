@@ -32,13 +32,13 @@ class hit_record():
 class hittable(ABC):
     @abstractmethod
     def hit(self, r, t_min, t_max, rec):
-        if not isinstance(r, ray.ray) or r is not None:
+        if not isinstance(r, ray.ray) and r is not None:
             raise TypeError()
-        if not isinstance(t_min, float) or t_min is not None:
+        if not isinstance(t_min, float) and t_min is not None:
             raise TypeError()
-        if not isinstance(t_max, float) or t_max is not None:
+        if not isinstance(t_max, float) and t_max is not None:
             raise TypeError()
-        if not isinstance(rec, hit_record) or rec is not None:
+        if not isinstance(rec, hit_record) and rec is not None:
             raise TypeError()
 
 class sphere(hittable):

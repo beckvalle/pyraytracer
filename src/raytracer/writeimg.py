@@ -3,6 +3,7 @@
 import warnings
 import math
 from src.raytracer.raytracer import vec3
+from src.raytracer import rweekend
 
 class NoHeaderError(Exception):
     pass
@@ -35,10 +36,19 @@ class writeppm():
         else:
             raise NoHeaderError("File header must be written before color values added")
 
-    def write_color(self, pixel_color):
-        self.color_string += (str(math.floor(255.999 * pixel_color.x)) + " "
-                              + str(math.floor(255.999 * pixel_color.y)) + " "
-                              + str(math.floor(255.999 * pixel_color.z)) + "\n")
+    def write_color(self, pixel_color, samples_per_pixel=1):
+        r = pixel_color.x
+        g = pixel_color.y
+        b = pixel_color.z
+        scale = 1.0 / samples_per_pixel
+        
+        r *= scale
+        g *= scale
+        b *= scale
+        
+        self.color_string += (str(math.floor(255.999 * rweekend.clamp(r, 0.0, 0.999))) + " "
+                              + str(math.floor(255.999 * rweekend.clamp(g, 0.0, 0.999))) + " "
+                              + str(math.floor(255.999 * rweekend.clamp(b, 0.0, 0.999))) + "\n")
 
     def check_valid(self):
         if self.image_width is not None and self.image_height is not None and self.color_string is not None:

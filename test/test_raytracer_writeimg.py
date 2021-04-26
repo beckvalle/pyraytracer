@@ -79,3 +79,8 @@ def test_writeppm_bad_no_str_check_valid(tmpdir):
     file = tmpdir.join('test_outppm.ppm')
     myvec = writeimg.writeppm(1, 3, file.strpath, 'P3', 255)
     assert myvec.check_valid()[0] == False
+
+def test_writeppm_write_color_string_per_px():
+    myvec = writeimg.writeppm()
+    myvec.write_color(raytracer.vec3(0.75, 0.5, 0.5), 3)
+    assert myvec.color_string == "63 42 42\n"
