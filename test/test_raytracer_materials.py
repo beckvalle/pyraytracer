@@ -133,3 +133,42 @@ def test_metal_good_scatter():
     myray = ray.ray(mypt, myvec)
     myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), None, 3.5)
     mymat.scatter(myray, myhr, mycol, myray)
+
+def test_dielectric_init():
+    mymat = materials.dielectric(0.2)
+
+def test_dielectric_bad_init():
+    with pytest.raises(TypeError):
+        mymat = materials.dielectric("")
+        
+def test_dielectric_bad_scatter_r_in():
+    mymat = materials.dielectric(0.2)
+    with pytest.raises(TypeError):
+        mymat.scatter("", "", "", "")
+
+def test_dielectric_bad_scatter_rec():
+    mymat = materials.dielectric(0.2)
+    mypt = raytracer.point3(3, 4, 5)
+    myvec = raytracer.vec3(6, 7, 7)
+    myray = ray.ray(mypt, myvec)
+    with pytest.raises(TypeError):
+        mymat.scatter(myray, "", "", "")
+
+def test_dielectric_bad_scatter_attenuation():
+    mymat = materials.dielectric(0.2)
+    mypt = raytracer.point3(3, 4, 5)
+    myvec = raytracer.vec3(6, 7, 7)
+    myray = ray.ray(mypt, myvec)
+    myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), None, 3.5)
+    with pytest.raises(TypeError):
+        mymat.scatter(myray, myhr, "", "")
+
+def test_dielectric_bad_scatter_scattered():
+    mycol = raytracer.color(3, 4, 5)
+    mymat = materials.dielectric(0.2)
+    mypt = raytracer.point3(3, 4, 5)
+    myvec = raytracer.vec3(6, 7, 7)
+    myray = ray.ray(mypt, myvec)
+    myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), None, 3.5)
+    with pytest.raises(TypeError):
+        mymat.scatter(myray, myhr, mycol, "")

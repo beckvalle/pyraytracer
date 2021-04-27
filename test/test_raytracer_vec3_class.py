@@ -248,3 +248,22 @@ def test_vec3_reflect():
     myvec1 = raytracer.vec3(1, -1, 0)
     myvec2 = raytracer.vec3(0, 1, 0)
     assert str(raytracer.vec3(1, 1, 0)) == str(raytracer.reflect(myvec1, myvec2))
+
+def test_vec3_bad_uv_refract():
+    with pytest.raises(TypeError):
+        raytracer.refract("", "", "")
+
+def test_vec3_bad_n_refract():
+    myvec1 = raytracer.vec3(-1, 1, 0)
+    with pytest.raises(TypeError):
+        raytracer.refract(myvec1, "", "")
+
+def test_vec3_bad_etai_over_etat_refract():
+    myvec1 = raytracer.vec3(-1, 1, 0)
+    with pytest.raises(TypeError):
+        raytracer.refract(myvec1, myvec1, "")
+
+def test_vec3_reflect():
+    myvec1 = raytracer.vec3(1, -1, 0)
+    myvec2 = raytracer.vec3(0, 1, 0)
+    assert str(raytracer.vec3(0.3, -0.9539392014169457, 0.0)) == str(raytracer.refract(myvec1, myvec2, 0.3))

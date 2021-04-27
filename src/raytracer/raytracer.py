@@ -161,3 +161,16 @@ def reflect(v, n):
     if not isinstance(n, vec3):
         raise TypeError()
     return v - 2 * dot(v, n) * n
+
+def refract(uv, n, etai_over_etat):
+    if not isinstance(uv, vec3):
+        raise TypeError()
+    if not isinstance(n, vec3):
+        raise TypeError()
+    if not isinstance(etai_over_etat, float):
+        raise TypeError()
+        
+    cos_theta = min(dot(-uv, n), 1.0)
+    r_out_perp = etai_over_etat * (uv + cos_theta * n)
+    r_out_parallel = -sqrt(abs(1.0 - r_out_perp.len_sqr)) * n
+    return r_out_perp + r_out_parallel
