@@ -6,7 +6,7 @@ pi = 3.1415926535897932385
 def degrees_to_radians(degrees):
     return degrees * pi / 180.0
 
-def random_double(seed=None, r_min=None, r_max=None):
+def random_double(r_min=None, r_max=None, seed=None):
     random.seed(seed, version=2)
     if r_min is None or r_max is None:
         return random.random()

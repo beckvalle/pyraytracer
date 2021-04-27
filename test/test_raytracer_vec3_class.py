@@ -3,6 +3,7 @@
 import pytest
 from src.raytracer import raytracer
 from math import sqrt
+import random
 
 
 def test_vec3_empty_init():
@@ -190,5 +191,18 @@ def test_color_is_vec3():
     mypt = raytracer.color(3, 4, 5)
     assert isinstance(mypt, raytracer.color)
     assert mypt.y == 4
+
+def test_vec3_random():
+    myvec1 = raytracer.vec3(0.23796462709189137, 0.23796462709189137, 0.23796462709189137)
+    assert str(myvec1) == str(raytracer.vec3.random(seed=3))
+    
+def test_vec3_random_min_max():
+    myvec1 = raytracer.vec3(2.7138938812756743, 2.7138938812756743, 2.7138938812756743)
+    assert str(myvec1) == str(raytracer.vec3.random(2.0, 5.0, 3))
+
+def test_random_in_unit_sphere():
+    myvec1 = raytracer.vec3(-0.5240707458162173, -0.5240707458162173, -0.5240707458162173)
+    assert str(myvec1) == str(raytracer.random_in_unit_sphere(3))
+    
     
     

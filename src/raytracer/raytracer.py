@@ -1,4 +1,5 @@
 from math import sqrt
+from src.raytracer import rweekend
 
 # implement raytracer using example from Peter Shirley
 # https://raytracing.github.io/books/RayTracingInOneWeekend.html#thevec3class/vec3utilityfunctions
@@ -97,6 +98,11 @@ class vec3():
         else:
             raise ZeroDivisionError()
 
+    def random(r_min=None, r_max=None, seed=None):
+        if r_min and r_max:
+            return vec3(rweekend.random_double(r_min, r_max, seed), rweekend.random_double(r_min, r_max, seed), rweekend.random_double(r_min, r_max, seed))
+        return vec3(rweekend.random_double(seed=seed), rweekend.random_double(seed=seed), rweekend.random_double(seed=seed))
+
 # create class alias for point3 and color
 point3 = vec3
 color = vec3
@@ -125,3 +131,9 @@ def unit(v):
     else:
         raise TypeError()
 
+def random_in_unit_sphere(seed=None):
+    while True:
+        p = vec3.random(-1, 1, seed)
+        if p.len_sqr >= 1:
+            continue
+        return p
