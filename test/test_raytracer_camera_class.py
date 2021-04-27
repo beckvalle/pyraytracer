@@ -3,6 +3,7 @@
 import pytest
 from src.raytracer import camera
 from src.raytracer import raytracer
+from src.raytracer import ray
 
 def test_camera_empty_init():
     aspect_ratio = 16.0 / 9.0
@@ -38,3 +39,8 @@ def test_camera_get_ray_bad_v():
     mycamera = camera.camera()
     with pytest.raises(TypeError):
         mycamera.get_ray(2.0, "")
+
+def test_camera_get_ray():
+    mycamera = camera.camera()
+    myray = mycamera.get_ray(2.0, 3.6)
+    assert isinstance(myray, ray.ray)

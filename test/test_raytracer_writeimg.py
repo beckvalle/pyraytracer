@@ -33,7 +33,7 @@ def test_writeppm_write_color_string():
     assert myvec.color_string == ''
     myvec.write_color(raytracer.vec3(0.75, 0.5, 0.5))
     myvec.write_color(raytracer.vec3(0.5, 0.5, 0.5))
-    assert myvec.color_string == "191 127 127\n127 127 127\n"
+    assert myvec.color_string == "221 181 181\n181 181 181\n"
     
 def test_writeppm_write_color_file(tmpdir):
     file = tmpdir.join('test_outppm.ppm')
@@ -42,7 +42,7 @@ def test_writeppm_write_color_file(tmpdir):
     myvec.write_color(raytracer.vec3(0.5, 0.5, 0.5))
     myvec.write_head()
     myvec.write_color_file()
-    assert file.read() == 'P3\n256 257\n255\n191 127 127\n127 127 127\n\n'
+    assert file.read() == 'P3\n256 257\n255\n221 181 181\n181 181 181\n\n'
 
 def test_writeppm_write_bad_color_file(tmpdir):
     file = tmpdir.join('test_outppm.ppm')
@@ -83,4 +83,4 @@ def test_writeppm_bad_no_str_check_valid(tmpdir):
 def test_writeppm_write_color_string_per_px():
     myvec = writeimg.writeppm()
     myvec.write_color(raytracer.vec3(0.75, 0.5, 0.5), 3)
-    assert myvec.color_string == "63 42 42\n"
+    assert myvec.color_string == "127 104 104\n"

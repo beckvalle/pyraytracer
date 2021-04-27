@@ -102,6 +102,11 @@ class vec3():
         if r_min and r_max:
             return vec3(rweekend.random_double(r_min, r_max, seed), rweekend.random_double(r_min, r_max, seed), rweekend.random_double(r_min, r_max, seed))
         return vec3(rweekend.random_double(seed=seed), rweekend.random_double(seed=seed), rweekend.random_double(seed=seed))
+    
+    def near_zero(self):
+        # return true if the vector is close to zero in all dimensions
+        s = 1e-8
+        return ((abs(self._e[0]) < s) and (abs(self._e[1]) < s) and (abs(self._e[2]) < s))
 
 # create class alias for point3 and color
 point3 = vec3

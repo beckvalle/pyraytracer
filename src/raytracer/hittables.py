@@ -1,17 +1,21 @@
 from src.raytracer import raytracer
 from abc import ABC, abstractmethod
-from src.raytracer import ray
+from src.raytracer import ray, materials
 from src.raytracer.raytracer import dot
 import math
 
 class hit_record():
-    def __init__(self, p=None, normal=None, t=None):
+    def __init__(self, p=None, normal=None, material=None, t=None):
         if isinstance(p, raytracer.point3) or p is None:
             self.p = p
         else:
             raise TypeError()
         if isinstance(normal, raytracer.vec3) or normal is None:
             self.normal = normal
+        else:
+            raise TypeError()
+        if isinstance(material, materials.material) or material is None:
+            self.material = material
         else:
             raise TypeError()
         if isinstance(t, float) or t is None:
@@ -42,13 +46,17 @@ class hittable(ABC):
             raise TypeError()
 
 class sphere(hittable):
-    def __init__(self, center=None, radius=None):
+    def __init__(self, center=None, radius=None, material=None):
         if isinstance(center, raytracer.point3) or center is None:
             self.center = center
         else:
             raise TypeError()
         if isinstance(radius, float) or radius is None:
             self.radius = radius
+        else:
+            raise TypeError()
+        if isinstance(material, materials.material) or material is None:
+            self.material = material
         else:
             raise TypeError()
 
@@ -85,6 +93,7 @@ class sphere(hittable):
         rec.p = r.at(rec.t)
         rec.outward_normal = (rec.p - self.center) / self.radius
         rec.set_face_normal(r, rec.outward_normal)
+        rec.material = self.material
         
         return (True, rec)
 

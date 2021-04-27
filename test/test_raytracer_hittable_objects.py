@@ -11,9 +11,10 @@ def test_hit_record_base_bad_init():
         myhr = hittables.hit_record("", "", "")
 
 def test_hit_record_base_init():
-    myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), 3.5)
+    myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), None, 3.5)
     assert myhr.p == raytracer.point3(1, 2, 3)
     assert myhr.normal == raytracer.point3(4, 5, 6)
+    assert myhr.material == None
     assert myhr.t == 3.5
 
 def test_hittable_init():
@@ -30,7 +31,7 @@ def test_hittable_hit():
     myd = dummy()
     mypt = raytracer.point3(0, 0, 0)
     myvec = raytracer.vec3(2, 2, 0)
-    myd.hit(ray.ray(mypt, myvec), 2.4, 3.4, hittables.hit_record(mypt, myvec, 2.0))
+    myd.hit(ray.ray(mypt, myvec), 2.4, 3.4, hittables.hit_record(mypt, myvec, None, 2.0))
             
 def test_sphere_init_values():
     mysph = hittables.sphere(raytracer.point3(1, 2, 3), 3.4)

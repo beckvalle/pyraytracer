@@ -203,6 +203,34 @@ def test_vec3_random_min_max():
 def test_random_in_unit_sphere():
     myvec1 = raytracer.vec3(-0.5240707458162173, -0.5240707458162173, -0.5240707458162173)
     assert str(myvec1) == str(raytracer.random_in_unit_sphere(3))
+
+def test_random_in_unit_sphere_ctu():
+    myvec1 = raytracer.vec3(0.24580338977940386, 0.24580338977940386, 0.24580338977940386)
+    assert str(myvec1) == str(raytracer.random_in_unit_sphere(5))
+
+def test_random_in_hemi_sphere():
+    my_norm = raytracer.vec3(1, 2, 3)
+    myvec1 = raytracer.vec3(0.5240707458162173, 0.5240707458162173, 0.5240707458162173)
+    assert str(myvec1) == str(raytracer.random_in_hemisphere(my_norm, 3))
+
+def test_random_in_hemi_sphere_neg():
+    my_norm = raytracer.vec3(-1, -2, -3)
+    myvec1 = raytracer.vec3(-0.5240707458162173, -0.5240707458162173, -0.5240707458162173)
+    assert str(myvec1) == str(raytracer.random_in_hemisphere(my_norm, 3))
+
+def test_random_in_hemi_sphere_bad_nrom():
+    myvec1 = raytracer.vec3(0.5240707458162173, 0.5240707458162173, 0.5240707458162173)
+    with pytest.raises(TypeError):
+        myvec1 = raytracer.random_in_hemisphere("", 3)
+
+def test_vec3_near_zero_v1():
+    myvec = raytracer.vec3(0, 0, 0)
+    assert myvec.near_zero() == True
+
+def test_vec3_near_zero_v2():
+    myvec = raytracer.vec3(0, 0, 1)
+    assert myvec.near_zero() == False
     
-    
-    
+def test_vec3_near_zero_v3():
+    myvec = raytracer.vec3(0, 0, 0.000000000000001)
+    assert myvec.near_zero() == True    
