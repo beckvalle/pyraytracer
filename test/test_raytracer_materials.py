@@ -81,3 +81,55 @@ def test_lambertian_good_scatter_near_norm():
     myray = ray.ray(mypt, myvec)
     myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), None, 3.5)
     mymat.scatter(myray, myhr, mycol, myray, 3)
+
+def test_metal_init():
+    mycol = raytracer.color(3, 4, 5)
+    mymat = materials.metal(mycol)
+
+def test_metal_bad_init():
+    with pytest.raises(TypeError):
+        mymat = materials.metal("")
+        
+def test_metal_bad_scatter_r_in():
+    mycol = raytracer.color(3, 4, 5)
+    mymat = materials.metal(mycol)
+    with pytest.raises(TypeError):
+        mymat.scatter("", "", "", "")
+
+def test_metal_bad_scatter_rec():
+    mycol = raytracer.color(3, 4, 5)
+    mymat = materials.metal(mycol)
+    mypt = raytracer.point3(3, 4, 5)
+    myvec = raytracer.vec3(6, 7, 7)
+    myray = ray.ray(mypt, myvec)
+    with pytest.raises(TypeError):
+        mymat.scatter(myray, "", "", "")
+
+def test_metal_bad_scatter_attenuation():
+    mycol = raytracer.color(3, 4, 5)
+    mymat = materials.metal(mycol)
+    mypt = raytracer.point3(3, 4, 5)
+    myvec = raytracer.vec3(6, 7, 7)
+    myray = ray.ray(mypt, myvec)
+    myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), None, 3.5)
+    with pytest.raises(TypeError):
+        mymat.scatter(myray, myhr, "", "")
+
+def test_metal_bad_scatter_scattered():
+    mycol = raytracer.color(3, 4, 5)
+    mymat = materials.metal(mycol)
+    mypt = raytracer.point3(3, 4, 5)
+    myvec = raytracer.vec3(6, 7, 7)
+    myray = ray.ray(mypt, myvec)
+    myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), None, 3.5)
+    with pytest.raises(TypeError):
+        mymat.scatter(myray, myhr, mycol, "")
+
+def test_metal_good_scatter():
+    mycol = raytracer.color(3, 4, 5)
+    mymat = materials.metal(mycol)
+    mypt = raytracer.point3(3, 4, 5)
+    myvec = raytracer.vec3(6, 7, 7)
+    myray = ray.ray(mypt, myvec)
+    myhr = hittables.hit_record(raytracer.point3(1, 2, 3), raytracer.vec3(4, 5, 6), None, 3.5)
+    mymat.scatter(myray, myhr, mycol, myray)

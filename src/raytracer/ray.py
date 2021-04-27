@@ -16,6 +16,9 @@ class ray():
         else:
             raise TypeError()
 
+    def __str__(self):
+        return "("+str(self.origin)+', '+str(self.direction)+')'
+
     def at(self, t):
         if self.origin is None or self.direction is None:
             raise AttributeError()

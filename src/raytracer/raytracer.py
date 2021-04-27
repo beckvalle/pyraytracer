@@ -154,4 +154,10 @@ def random_in_hemisphere(normal, seed=None):
         return in_unit_sphere
     else:
         return -in_unit_sphere
-        
+
+def reflect(v, n):
+    if not isinstance(v, vec3):
+        raise TypeError()
+    if not isinstance(n, vec3):
+        raise TypeError()
+    return v - 2 * dot(v, n) * n

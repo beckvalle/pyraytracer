@@ -234,3 +234,17 @@ def test_vec3_near_zero_v2():
 def test_vec3_near_zero_v3():
     myvec = raytracer.vec3(0, 0, 0.000000000000001)
     assert myvec.near_zero() == True    
+
+def test_vec3_bad_v_reflect():
+    with pytest.raises(TypeError):
+        raytracer.reflect("", "")
+
+def test_vec3_bad_n_reflect():
+    myvec1 = raytracer.vec3(-1, 1, 0)
+    with pytest.raises(TypeError):
+        raytracer.reflect(myvec1, "")
+
+def test_vec3_reflect():
+    myvec1 = raytracer.vec3(1, -1, 0)
+    myvec2 = raytracer.vec3(0, 1, 0)
+    assert str(raytracer.vec3(1, 1, 0)) == str(raytracer.reflect(myvec1, myvec2))
