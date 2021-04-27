@@ -137,3 +137,16 @@ def random_in_unit_sphere(seed=None):
         if p.len_sqr >= 1:
             continue
         return p
+
+def random_unit_vector(seed=None):
+    return unit(random_in_unit_sphere(seed))
+
+def random_in_hemisphere(normal, seed=None):
+    if not isinstance(normal, vec3) :
+        raise TypeError()
+    in_unit_sphere = random_in_unit_sphere(seed)
+    if dot(in_unit_sphere, normal) > 0.0:  # in same hemisphere as normal
+        return in_unit_sphere
+    else:
+        return -in_unit_sphere
+        
