@@ -25,6 +25,11 @@ def test_camera_empty_init():
     assert mycamera.vertical == vertical
     assert mycamera.lower_left_corner == lower_left_corner
 
+def test_camera_args_init():
+    vfov = 90.0
+    aspect_ratio = 16.0 / 9.0
+    mycamera = camera.camera(vfov=vfov, aspect_ratio=aspect_ratio)
+
 def test_camera_get_ray_empty():
     mycamera = camera.camera()
     with pytest.raises(TypeError):

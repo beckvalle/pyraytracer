@@ -155,6 +155,13 @@ def random_in_hemisphere(normal, seed=None):
     else:
         return -in_unit_sphere
 
+def random_in_unit_disk(seed=None):
+    while True:
+        p = vec3(rweekend.random_double(-1, 1, seed), rweekend.random_double(-1, 1, seed), 0)
+        if p.len_sqr >= 1:
+            continue
+        return p
+
 def reflect(v, n):
     if not isinstance(v, vec3):
         raise TypeError()
