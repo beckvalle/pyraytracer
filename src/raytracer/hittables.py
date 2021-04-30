@@ -8,7 +8,7 @@ from functools import cmp_to_key
 
 # container class for keeping track of hit information
 class hit_record():
-    def __init__(self, p=None, normal=None, material=None, t=None):
+    def __init__(self, p=None, normal=None, material=None, t=None, u=None, v=None):
         # check args are valid
         if isinstance(p, raytracer.point3) or p is None:
             self.p = p
@@ -26,7 +26,22 @@ class hit_record():
             self.t = t
         else:
             raise TypeError()
+
+        # u and v are surface texture coordinates
+        if isinstance(u, float) or u is None:
+            self.u = u
+        else:
+            raise TypeError()
+        if isinstance(v, float) or v is None:
+            self.v = v
+        else:
+            raise TypeError()
         self.front_face = None
+        
+    # print string for debugging
+    def __str__(self):
+        return("HR p: "+str(self.p)+" n: "+str(self.normal)+" mat: "+str(self.material)
+               +" t: "+str(self.t)+" u: "+str(self.u)+" v: "+str(self.v)+" ff: "+str(self.front_face)+"\n")
         
     def set_face_normal(self, r, outward_normal):
         if not isinstance(r, ray.ray):
@@ -110,6 +125,9 @@ class sphere(hittable):
         rec.p = r.at(rec.t)
         rec.outward_normal = (rec.p - self.center) / self.radius
         rec.set_face_normal(r, rec.outward_normal)
+        uv_out = self.get_sphere_uv(rec.outward_normal)
+        rec.u = uv_out[0]
+        rec.v = uv_out[1]
         rec.material = self.material
         
         return (True, rec)
@@ -127,6 +145,25 @@ class sphere(hittable):
             self.center + raytracer.vec3(self.radius, self.radius, self.radius))
         
         return output_box
+    
+    # function to return texture coords for sphere
+    def get_sphere_uv(self, p):
+        # check args
+        if not isinstance(p, raytracer.point3):
+            raise TypeError()
+            
+        # p is a given point on a sphere radius 1 centered on origin
+        # u = returned value in [0, 1] of angle around y axis from x=-1
+        # v = returned value in [0, 1] of angle from y=-1 to y=+1
+        
+        theta = math.acos(-p.y)
+        phi = math.atan2(-p.z, p.x)+ rweekend.pi
+        
+        u = phi / (2 * rweekend.pi) 
+        v = theta / rweekend.pi
+        
+        return (u, v)
+        
 
 # class for multiple hittable things
 class hittable_list(hittable):
@@ -437,4 +474,67 @@ def box_y_compare(a, b):
 
 def box_z_compare(a, b): 
     return box_compare(a, b, 2)
+
+# class for rectangles
+class xy_rect(hittable):
+    def __init__(self, _x0, _x1, _y0, _y1, _k, mat):
+        if isinstance(_x0, float) or _x0 is None:
+            self.x0 = _x0
+        else:
+            raise TypeError()
+        if not isinstance(_x1, float) or _x1 is not None:
+            self.x1 = _x1
+        else:
+            raise TypeError()
+        if not isinstance(_y0, float) or _y0 is not None:
+            self.y0 = _y0
+        else:
+            raise TypeError()
+        if not isinstance(_y1, float) or _y1 is not None:
+            self.y1 = _y1
+        else:
+            raise TypeError()
+        if not isinstance(_k, float) or _k is not None:
+            self.k = _k
+        else:
+            raise TypeError()
+        if isinstance(mat, materials.material) or mat is None:
+            self.material = mat
+        else:
+            raise TypeError()
+            
+    def hit(self, r, t_min, t_max, rec):
+        if not isinstance(r, ray.ray):
+            raise TypeError()
+        if not isinstance(t_min, float):
+            raise TypeError()
+        if not isinstance(t_max, float):
+            raise TypeError()
+        if not isinstance(rec, hit_record):
+            raise TypeError()
+            
+        t = (self.k - r.origin.z) / r.direction.z
+        if t < t_min or t > t_max:
+            return (False, None)
+        
+        x = r.origin.x + t * r.direction.x
+        y = r.origin.y + t * r.direction.y
+        if (x < self.x0 or x > self.x1 or y < self.y0 or y > self.y1):
+            return (False, None)
+        
+        #print("hit xyrec\n")
+        rec.u = (x - self.x0) / (self.x1 - self.x0)
+        rec.v = (y - self.y0) / (self.y1 - self.y0)
+        rec.t = t
+        rec.outward_normal = raytracer.vec3(0.0, 0.0, 1.1)
+        rec.set_face_normal(r, rec.outward_normal)
+        rec.material = self.material
+        rec.p = r.at(t)
+        #print("hit mat", rec.material, "\n")
+        return (True, rec)
+            
+    # bounding box function
+    def bounding_box(self, time0, time1):
+        # pad z a small ammount so non zero
+        return aabbs.aabb(raytracer.point3(self.x0, self.y0, self.k-0.0001), raytracer.point3(self.x1, self.y1, self.k+0.0001))
    

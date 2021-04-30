@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from src.raytracer import rweekend
 from src.raytracer import raytracer
 from src.raytracer import ray
-from src.raytracer import hittables
+from src.raytracer import hittables, textures
 from src.raytracer.raytracer import random_unit_vector, random_in_unit_sphere
 from math import sqrt
 
@@ -15,12 +15,19 @@ class material(ABC):
     @abstractmethod
     def scatter(self, r_in, rec, attenuation, scattered, seed=None):
         pass
+    
+    @abstractmethod
+    def emitted(self, u, v, p):
+        pass
 
 # class for lambertian materials - not very reflective
 class lambertian(material):
-    def __init__(self, albedo):
-        if isinstance(albedo, raytracer.color):
-            self.albedo = albedo
+    def __init__(self, a):
+        if isinstance(a, raytracer.color) or isinstance(a, textures.texture):
+            if isinstance(a, textures.texture):
+                self.albedo = a
+            else:
+                self.albedo = textures.solid_color(a)
         else:
             raise TypeError()
 
@@ -39,8 +46,13 @@ class lambertian(material):
             scatter_direction = rec.normal
 
         scattered = ray.ray(rec.p, scatter_direction, r_in.time)
-        attenuation = self.albedo
+        attenuation = self.albedo.value(rec.u, rec.v, rec.p)
         return (True, scattered, attenuation)
+    
+    def emitted(self, u, v, p):
+        if not isinstance(p, raytracer.point3):
+            raise TypeError()
+        return raytracer.color(0, 0, 0)
 
 # class for metalic materials - can be shinny or matte (set fuzz)
 class metal(material):
@@ -71,6 +83,11 @@ class metal(material):
         attenuation = self.albedo
         out = raytracer.dot(scattered.direction, rec.normal) > 0
         return (out, scattered, attenuation)
+    
+    def emitted(self, u, v, p):
+        if not isinstance(p, raytracer.point3):
+            raise TypeError()
+        return raytracer.color(0, 0, 0)
 
 # class for glass type materials
 class dielectric(material):
@@ -110,6 +127,11 @@ class dielectric(material):
         
         return (True, scattered, attenuation)
     
+    def emitted(self, u, v, p):
+        if not isinstance(p, raytracer.point3):
+            raise TypeError()
+        return raytracer.color(0, 0, 0)
+    
     def reflectance(self, cosine, ref_idx):
         if not isinstance(cosine, float):
             raise TypeError()
@@ -119,4 +141,25 @@ class dielectric(material):
         r0 = (1 - ref_idx) / (1 + ref_idx)
         r0 = r0 * r0
         return r0 + (1 - r0) * pow((1 - cosine), 5)
+
+# class to emmit light
+class diffuse_light(material):
+    def __init__(self, a):
+        # check args
+        if isinstance(a, textures.texture):
+            self.emit = a
+        elif isinstance(a, raytracer.color):
+            self.emit = textures.solid_color(a)
+        else:
+            raise TypeError()
+
+    # don't scatter rays
+    def scatter(self, r_in, rec, attenuation, scattered, seed=None):
+        return (False, scattered, attenuation)
+    
+    def emitted(self, u, v, p):
+        if not isinstance(p, raytracer.point3):
+            raise TypeError()
+        
+        return self.emit.value(u, v, p)
         
