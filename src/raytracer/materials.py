@@ -9,13 +9,14 @@ from src.raytracer import hittables
 from src.raytracer.raytracer import random_unit_vector, random_in_unit_sphere
 from math import sqrt
 
-# material class
+# abstract base material class
 class material(ABC):
 
     @abstractmethod
     def scatter(self, r_in, rec, attenuation, scattered, seed=None):
         pass
 
+# class for lambertian materials - not very reflective
 class lambertian(material):
     def __init__(self, albedo):
         if isinstance(albedo, raytracer.color):
@@ -37,10 +38,11 @@ class lambertian(material):
         if (scatter_direction.near_zero()):
             scatter_direction = rec.normal
 
-        scattered = ray.ray(rec.p, scatter_direction)
+        scattered = ray.ray(rec.p, scatter_direction, r_in.time)
         attenuation = self.albedo
         return (True, scattered, attenuation)
 
+# class for metalic materials - can be shinny or matte (set fuzz)
 class metal(material):
     def __init__(self, albedo, fuzz=1.0):
         if isinstance(albedo, raytracer.color):
@@ -65,11 +67,12 @@ class metal(material):
             raise TypeError()
 
         reflected = raytracer.reflect(raytracer.unit(r_in.direction), rec.normal)
-        scattered =  ray.ray(rec.p, reflected + self.fuzz * random_in_unit_sphere())
+        scattered =  ray.ray(rec.p, reflected + self.fuzz * random_in_unit_sphere(), r_in.time)
         attenuation = self.albedo
         out = raytracer.dot(scattered.direction, rec.normal) > 0
         return (out, scattered, attenuation)
 
+# class for glass type materials
 class dielectric(material):
     def __init__(self, index_of_refraction):
         if isinstance(index_of_refraction, float):
@@ -103,7 +106,7 @@ class dielectric(material):
         else:
             direction = raytracer.refract(unit_direction, rec.normal, refraction_ratio)
             
-        scattered = ray.ray(rec.p, direction)
+        scattered = ray.ray(rec.p, direction, r_in.time)
         
         return (True, scattered, attenuation)
     

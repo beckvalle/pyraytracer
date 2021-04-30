@@ -1,4 +1,5 @@
 import random
+import math
 
 infinity = float("inf")
 pi = 3.1415926535897932385
@@ -12,6 +13,9 @@ def random_double(r_min=None, r_max=None, seed=None):
         return random.random()
     else:
         return random.uniform(r_min, r_max)
+
+def random_int(r_min=None, r_max=None, seed=None):
+    return math.floor(random_double(r_min, r_max+1, seed))
 
 def clamp(x, c_min, c_max):
     if isinstance(x, float) and isinstance(c_min, float) and isinstance(c_max, float):
