@@ -1,3 +1,16 @@
+#### Raytracer Code - 4 credit MP
+# Rebecca Vandewalle, CS 418
+# Code to implement a raytracer using Python based on work by Peter Shirley 
+
+#### WARNING!!!
+# This code may take a while to render, especially if set with a large number of samples per pixel!!
+# For a quick check, a samples per pixel value around 7 will produce a rough image
+
+# to run - 'python render_final_image.py'
+# no command line arguments needed
+# outputs a raytracer image in ppm file format - output.ppm
+
+# imports
 import sys
 import math
 
@@ -117,31 +130,74 @@ def simple_light():
     
     return objects
 
-def simple_light_2():
+def make_final_scene():
     objects = hittables.hittable_list()
     
     red = materials.lambertian(color(0.65, 0.05, 0.05))
+    orange = materials.lambertian(color(0.91, 0.29, 0.153))
+    blue = materials.lambertian(color(0.075, 0.161, 0.294))
     green = materials.lambertian(color(0.12, 0.45, 0.15))
     white = materials.lambertian(color(0.73, 0.73, 0.73))
+    perlin_texture = materials.lambertian(textures.noise_texture(4.0))
+    earth_texture = materials.lambertian(textures.image_texture("earthmap.jpg"))
+    glass = materials.dielectric(1.5)
+    metal = materials.metal(color(0.7, 0.6, 0.5), 0.0)
+    checker = materials.lambertian(textures.checker_texture(color(0.01, 0.01, 0.01), color(0.9, 0.9, 0.9)))
     
-    main_box = hittables.box(point3(-1.0, 0.0, -3.0), point3(-0.5, 4.0, -4.0), red)
+    main_box = hittables.box(point3(-4.0, 0.0, -5.0), point3(-3.5, 6.0, -6.0), orange)
     objects.add(main_box)
     box_trans = hittables.translate(main_box, vec3(1.0, 0.0, 0.0))
     objects.add(box_trans)
     box_trans = hittables.translate(box_trans, vec3(1.0, 0.0, 0.0))
     objects.add(box_trans)
     
-    base_sphere = hittables.sphere(point3(-3.0, 1.0, 1.0), 1.0, white)
+    base_sphere = hittables.sphere(point3(-6.0, 0.75, -1.0), 0.75, glass)
     objects.add(base_sphere)
-    sphere_shift = hittables.translate(base_sphere, vec3(3.0, 0.0, 0.0))
-    sphere_shift = hittables.recolor(sphere_shift, red)
+    sphere_shift = hittables.translate(base_sphere, vec3(3, 0.0, 0.0))
+    sphere_shift = hittables.recolor(sphere_shift, blue)
     objects.add(sphere_shift)
-    sphere_shift = hittables.translate(sphere_shift, vec3(3.0, 0.0, 0.0))
-    sphere_shift = hittables.recolor(sphere_shift, green)
+    sphere_shift = hittables.translate(sphere_shift, vec3(3, 0.0, 0.0))
+    sphere_shift = hittables.recolor(sphere_shift, earth_texture)
+    objects.add(sphere_shift)
+    sphere_shift = hittables.translate(sphere_shift, vec3(3, 0.0, 0.0))
+    sphere_shift = hittables.recolor(sphere_shift, metal)
+    objects.add(sphere_shift)
+    sphere_shift = hittables.translate(sphere_shift, vec3(3, 0.0, 0.0))
+    sphere_shift = hittables.recolor(sphere_shift, perlin_texture)
     objects.add(sphere_shift)
     
-    objects.add(hittables.xz_rect(-50.0, 50.0, -50.0, 50.0, 0.0, green))
-    #objects.add(hittables.xy_rect(-12.0, -12.0, -1.0, 2.0, -15.0, white))
+    base_small_sphere = hittables.sphere(point3(0.0, 0.2, 2.0), 0.2, orange)
+    objects.add(base_small_sphere)
+    
+    for a in (-4, -2, 0, 2, 4):
+        for b in (0, 1, 2, 3):
+            choose_mat = rweekend.random_double()
+            center = point3(a + 0.9 * rweekend.random_double(), 0.0, b + abs(0.9 * rweekend.random_double()))
+            #print(center)
+            
+            if (choose_mat < 0.8):
+                # diffuse sphere
+                albedo = color.random() * color.random()
+                sphere_material = materials.lambertian(albedo)
+                transf_sphere = hittables.translate(base_small_sphere, center)
+                transf_sphere = hittables.recolor(transf_sphere, sphere_material)
+                objects.add(transf_sphere)
+            elif (choose_mat < 0.95):
+                # metal sphere
+                albedo = color.random(0.5, 1.0)
+                fuzz = rweekend.random_double(0.0, 0.5)
+                sphere_material = materials.metal(albedo, fuzz)
+                transf_sphere = hittables.translate(base_small_sphere, center)
+                transf_sphere = hittables.recolor(transf_sphere, sphere_material)
+                objects.add(transf_sphere)
+            else:
+                # moving sphere
+                albedo = color.random() * color.random()
+                sphere_material = materials.lambertian(albedo)
+                center2 = center + vec3(0.0, rweekend.random_double(0.0, 3.0), 0.0) # add moving sphere
+                objects.add(hittables.moving_sphere(center, center2, 0.0, 1.0, 0.2, sphere_material))
+    
+    objects.add(hittables.xz_rect(-50.0, 50.0, -50.0, 50.0, 0.0, white))
     
     difflight = materials.diffuse_light(color(6, 6, 6))
     objects.add(hittables.sphere(point3(6.0, 8.0, 6.0), 5.0, difflight))
@@ -149,13 +205,14 @@ def simple_light_2():
     return objects
 
 # choose scene
-scene_number = 3
+scene_number = 6
 
 # scene defaults
 vfov = 40.0
 aperture = 0.0
 background = color(0,0,0)
 aspect_ratio = 16.0 / 9.0
+#aspect_ratio = 1.0
 
 # scene vars per scene
 
@@ -191,15 +248,9 @@ elif scene_number == 4:
     lookfrom = point3(13, 2, 3)
     lookat = point3(0, 0, 0)
     vfov = 20.0
-    
+
+# perlin noise    
 elif scene_number == 5:
-    world = earth()
-    background = color(0.0, 0.0, 0.0)
-    lookfrom = point3(13, 2, 3)
-    lookat = point3(0, 0, 0)
-    vfov = 20.0
-    
-elif scene_number == 6:
     world = simple_light()
     # samples_per_pixel = 40;
     background = color(0.0, 0.0, 0.0)
@@ -207,8 +258,9 @@ elif scene_number == 6:
     lookat = point3(0, 2, 0)
     vfov = 20.0
 
-elif scene_number == 7:
-    world = simple_light_2()
+# final render
+elif scene_number == 6:
+    world = make_final_scene()
     background = color(0.0, 0.0, 0.0)
     lookfrom = point3(0.0, 3.0, 20.0)
     lookat = point3(0, 2, 0)
@@ -221,11 +273,12 @@ cam = camera.camera(lookfrom, lookat, vup, 20.0, aspect_ratio,
                     aperture, dist_to_focus, 0.0, 1.0)
 
 # image params
-image_width = 200
+image_width = 650
+#image_width = 200
 image_height = math.floor(image_width / aspect_ratio)
-samples_per_pixel = 7 
-max_depth = 20
-# 50/20 8 min
+samples_per_pixel = 2 
+max_depth = 2
+# 500/30
 
 # print start time
 tz_CH = pytz.timezone('America/Chicago') 
@@ -234,7 +287,7 @@ print("start time: ", start_time.strftime("%H:%M:%S"))
 
 # render image
 outimg = writeimg.writeppm(image_width, image_height,
-                           'outfile.ppm', 'P3', 255)
+                           'outfile_500.ppm', 'P3', 255)
 outimg.write_head()
 for j in range(image_height-1, -1, -1):
     sys.stdout.write("\r%d%%" % j)
