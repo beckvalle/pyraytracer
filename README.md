@@ -10,7 +10,10 @@ This code can produce an output image that looks like this one!
 
 ## How to run the code
 Code for the final render is stored in [render\_final_image.py](render_final_image.py).
-Simply run the file using the command: `python render_final_image.py` (using the approperate command to run a Python3 script).
+Simply run the file using the command: `python render_final_image.py` (using the approperate command to run a Python3 script). No command line arguments are needed. This script outputs a raytracer image in ppm file format called `output.ppm`.
+<br>
+**WARNING!!!**
+This code may take a while to render, especially if set with a large number of samples per pixel!! For a quick check, a samples per pixel value around 7 will produce a servicable image.
 ## What is included
 This code implements a Python raytracer based on C++ raytracer code by Peter Shirley in [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) and [Ray Tracing: The Next Week](https://raytracing.github.io/books/RayTracingTheNextWeek.html). All of the code from Ray Tracing in One Weekend is implemented, and selected portions of Ray Tracing: The Next Week is included.
 ## Code structure
