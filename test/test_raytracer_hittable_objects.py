@@ -2,7 +2,8 @@
 
 import pytest
 from src.raytracer import raytracer
-from src.raytracer import hittables
+from src.raytracer import hittables, materials
+from src.raytracer.raytracer import point3, vec3, color
 from src.raytracer import ray
 from dataclasses import dataclass
 
@@ -87,3 +88,37 @@ def test_sphere_hit_bad_ray_vals():
     mysph = hittables.sphere(raytracer.point3(1, 1, 1), 3.0)
     with pytest.raises(AttributeError):
         mysph.hit(ray.ray(), "", "", "")
+        
+def test_xy_rect_init():
+    mymat = materials.lambertian(color(0.4, 0.2, 0.1))
+    myrec = hittables.xy_rect(3.0, 5.0, 1.0, 3.0, -2, mymat)
+    
+def test_xy_rect_hit():
+    mymat = materials.lambertian(color(0.4, 0.2, 0.1))
+    myrec = hittables.xy_rect(3.0, 5.0, 1.0, 5.0, -2, mymat)
+    mypt = raytracer.point3(0, 0, 0)
+    myvec = raytracer.vec3(2, 2, 1)
+    myrec.hit(ray.ray(mypt, myvec), 2.4, 3.4, hittables.hit_record(mypt, myvec, None, 2.0))
+    
+def test_xz_rect_init():
+    mymat = materials.lambertian(color(0.4, 0.2, 0.1))
+    myrec = hittables.xz_rect(3.0, 5.0, 1.0, 3.0, -2, mymat)
+    
+def test_xz_rect_hit():
+    mymat = materials.lambertian(color(0.4, 0.2, 0.1))
+    myrec = hittables.xz_rect(3.0, 5.0, 1.0, 5.0, -2, mymat)
+    mypt = raytracer.point3(0, 0, 0)
+    myvec = raytracer.vec3(2, 2, 1)
+    myrec.hit(ray.ray(mypt, myvec), 2.4, 3.4, hittables.hit_record(mypt, myvec, None, 2.0))
+    
+    
+def test_yz_rect_init():
+    mymat = materials.lambertian(color(0.4, 0.2, 0.1))
+    myrec = hittables.yz_rect(3.0, 5.0, 1.0, 3.0, -2, mymat)
+    
+def test_yz_rect_hit():
+    mymat = materials.lambertian(color(0.4, 0.2, 0.1))
+    myrec = hittables.yz_rect(3.0, 5.0, 1.0, 5.0, -2, mymat)
+    mypt = raytracer.point3(0, 0, 0)
+    myvec = raytracer.vec3(2, 2, 1)
+    myrec.hit(ray.ray(mypt, myvec), 2.4, 3.4, hittables.hit_record(mypt, myvec, None, 2.0))

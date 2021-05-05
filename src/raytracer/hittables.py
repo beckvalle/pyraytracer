@@ -71,6 +71,9 @@ class hittable(ABC):
     @abstractmethod
     def bounding_box(self, time0, time1):
         pass
+    
+    def set_material(self, mat):
+        pass
 
 # class for spheres
 class sphere(hittable):
@@ -163,8 +166,10 @@ class sphere(hittable):
         v = theta / rweekend.pi
         
         return (u, v)
+    
+    def set_material(self, mat):
+        self.material = mat
         
-
 # class for multiple hittable things
 class hittable_list(hittable):
     def __init__(self, h_object=None):
@@ -238,6 +243,10 @@ class hittable_list(hittable):
             output_box = temp_box if first_box else aabbs.surrounding_box(output_box, temp_box)
             
         return output_box
+    
+    def set_material(self, mat):
+        for obj in self.objects:
+            obj.set_material(mat)
 
 # class for spheres that move
 # sphere center moves from cen0 at time0 to cen1 at time1
@@ -333,6 +342,9 @@ class moving_sphere(hittable):
         output_box = aabbs.surrounding_box(box0, box1)
         
         return output_box
+    
+    def set_material(self, mat):
+        self.material = mat
 
 # class for bounding box nodes
 class bvh_node(hittable):
@@ -448,6 +460,10 @@ class bvh_node(hittable):
     def bounding_box(self, time0, time1):
         return self.box
     
+    def set_material(self, mat):
+        for obj in self.objects:
+            obj.set_material(mat)
+    
 def box_compare(a, b, axis):
     if not isinstance(a, hittable):
         raise TypeError()
@@ -526,7 +542,7 @@ class xy_rect(hittable):
         rec.u = (x - self.x0) / (self.x1 - self.x0)
         rec.v = (y - self.y0) / (self.y1 - self.y0)
         rec.t = t
-        rec.outward_normal = raytracer.vec3(0.0, 0.0, 1.1)
+        rec.outward_normal = raytracer.vec3(0.0, 0.0, 1.0)
         rec.set_face_normal(r, rec.outward_normal)
         rec.material = self.material
         rec.p = r.at(t)
@@ -537,4 +553,271 @@ class xy_rect(hittable):
     def bounding_box(self, time0, time1):
         # pad z a small ammount so non zero
         return aabbs.aabb(raytracer.point3(self.x0, self.y0, self.k-0.0001), raytracer.point3(self.x1, self.y1, self.k+0.0001))
-   
+    
+# class for rectangles
+class xz_rect(hittable):
+    def __init__(self, _x0, _x1, _z0, _z1, _k, mat):
+        if isinstance(_x0, float) or _x0 is None:
+            self.x0 = _x0
+        else:
+            raise TypeError()
+        if not isinstance(_x1, float) or _x1 is not None:
+            self.x1 = _x1
+        else:
+            raise TypeError()
+        if not isinstance(_z0, float) or _z0 is not None:
+            self.z0 = _z0
+        else:
+            raise TypeError()
+        if not isinstance(_z1, float) or _z1 is not None:
+            self.z1 = _z1
+        else:
+            raise TypeError()
+        if not isinstance(_k, float) or _k is not None:
+            self.k = _k
+        else:
+            raise TypeError()
+        if isinstance(mat, materials.material) or mat is None:
+            self.material = mat
+        else:
+            raise TypeError()
+            
+    def hit(self, r, t_min, t_max, rec):
+        if not isinstance(r, ray.ray):
+            raise TypeError()
+        if not isinstance(t_min, float):
+            raise TypeError()
+        if not isinstance(t_max, float):
+            raise TypeError()
+        if not isinstance(rec, hit_record):
+            raise TypeError()
+            
+        t = (self.k - r.origin.y) / r.direction.y
+        if t < t_min or t > t_max:
+            return (False, None)
+        
+        x = r.origin.x + t * r.direction.x
+        z = r.origin.z + t * r.direction.z
+        if (x < self.x0 or x > self.x1 or z < self.z0 or z > self.z1):
+            return (False, None)
+        
+        #print("hit xyrec\n")
+        rec.u = (x - self.x0) / (self.x1 - self.x0)
+        rec.v = (z - self.z0) / (self.z1 - self.z0)
+        rec.t = t
+        rec.outward_normal = raytracer.vec3(0.0, 1.0, 0.0)
+        rec.set_face_normal(r, rec.outward_normal)
+        rec.material = self.material
+        rec.p = r.at(t)
+        #print("hit mat", rec.material, "\n")
+        return (True, rec)
+            
+    # bounding box function
+    def bounding_box(self, time0, time1):
+        # pad z a small ammount so non zero
+        return aabbs.aabb(raytracer.point3(self.x0, self.k-0.0001, self.z0), raytracer.point3(self.x1, self.k+0.0001, self.z1))
+    
+    def set_material(self, mat):
+        self.material = mat
+        
+# class for rectangles
+class yz_rect(hittable):
+    def __init__(self, _y0, _y1, _z0, _z1, _k, mat):
+        if isinstance(_y0, float) or _y0 is None:
+            self.y0 = _y0
+        else:
+            raise TypeError()
+        if not isinstance(_y1, float) or _y1 is not None:
+            self.y1 = _y1
+        else:
+            raise TypeError()
+        if not isinstance(_z0, float) or _z0 is not None:
+            self.z0 = _z0
+        else:
+            raise TypeError()
+        if not isinstance(_z1, float) or _z1 is not None:
+            self.z1 = _z1
+        else:
+            raise TypeError()
+        if not isinstance(_k, float) or _k is not None:
+            self.k = _k
+        else:
+            raise TypeError()
+        if isinstance(mat, materials.material) or mat is None:
+            self.material = mat
+        else:
+            raise TypeError()
+            
+    def hit(self, r, t_min, t_max, rec):
+        if not isinstance(r, ray.ray):
+            raise TypeError()
+        if not isinstance(t_min, float):
+            raise TypeError()
+        if not isinstance(t_max, float):
+            raise TypeError()
+        if not isinstance(rec, hit_record):
+            raise TypeError()
+            
+        t = (self.k - r.origin.x) / r.direction.x
+        if t < t_min or t > t_max:
+            return (False, None)
+        
+        y = r.origin.y + t * r.direction.y
+        z = r.origin.z + t * r.direction.z
+        if (y < self.y0 or y > self.y1 or z < self.z0 or z > self.z1):
+            return (False, None)
+        
+        #print("hit xyrec\n")
+        rec.u = (y - self.y0) / (self.y1 - self.y0)
+        rec.v = (z - self.z0) / (self.z1 - self.z0)
+        rec.t = t
+        rec.outward_normal = raytracer.vec3(1.0, 0.0, 0.0)
+        rec.set_face_normal(r, rec.outward_normal)
+        rec.material = self.material
+        rec.p = r.at(t)
+        #print("hit mat", rec.material, "\n")
+        return (True, rec)
+            
+    # bounding box function
+    def bounding_box(self, time0, time1):
+        # pad z a small ammount so non zero
+        return aabbs.aabb(raytracer.point3(self.k-0.0001, self.y0, self.z0), raytracer.point3(self.k+0.0001, self.y1, self.z1))
+    
+    def set_material(self, mat):
+        self.material = mat
+        
+# class for boxes
+class box(hittable):
+    def __init__(self, _p0=None, _p1=None, mat=None):
+        if isinstance(_p0, raytracer.point3):
+            self.box_min = _p0
+        else:
+            raise TypeError()
+        if isinstance(_p1, raytracer.point3):
+            self.box_max = _p1
+        else:
+            raise TypeError()
+        if isinstance(mat, materials.material):
+            self.material = mat
+        else:
+            raise TypeError()
+            
+        self.sides = hittable_list()
+        self.sides.add(xy_rect(_p0.x, _p1.x, _p0.y, _p1.y, _p1.z, mat))
+        self.sides.add(xy_rect(_p0.x, _p1.x, _p0.y, _p1.y, _p0.z, mat))
+        
+        self.sides.add(xz_rect(_p0.x, _p1.x, _p0.z, _p1.z, _p1.y, mat))
+        self.sides.add(xz_rect(_p0.x, _p1.x, _p0.z, _p1.z, _p0.y, mat))
+        
+        self.sides.add(yz_rect(_p0.y, _p1.y, _p0.z, _p1.z, _p1.x, mat))
+        self.sides.add(yz_rect(_p0.y, _p1.y, _p0.z, _p1.z, _p0.x, mat))
+        
+    def hit(self, r, t_min, t_max, rec):
+        if not isinstance(r, ray.ray):
+            raise TypeError()
+        if not isinstance(t_min, float):
+            raise TypeError()
+        if not isinstance(t_max, float):
+            raise TypeError()
+        if not isinstance(rec, hit_record):
+            raise TypeError()
+            
+        return self.sides.hit(r, t_min, t_max, rec)
+    
+    def bounding_box(self, time0, time1):
+        return aabbs.aabb(self.box_min, self.box_max)
+    
+    def set_material(self, mat):
+        self.material = mat
+        
+### Instancing Classes!!!
+
+class translate(hittable):
+    def __init__(self, p, displacement):
+        if isinstance(p, hittable):
+            self.ptr = p
+        else:
+            raise TypeError()
+        if isinstance(displacement, raytracer.vec3):
+            self.offset = displacement
+        else:
+            raise TypeError()
+    
+    def hit(self, r, t_min, t_max, rec):
+        if not isinstance(r, ray.ray):
+            raise TypeError()
+        if not isinstance(t_min, float):
+            raise TypeError()
+        if not isinstance(t_max, float):
+            raise TypeError()
+        if not isinstance(rec, hit_record):
+            raise TypeError()
+            
+        moved_r = ray.ray(r.origin - self.offset, r.direction, r.time)
+            
+        temp_rec = hit_record()
+        hit_anything = False
+
+        hit_out = self.ptr.hit(moved_r, t_min, t_max, temp_rec)
+        
+        if hit_out[0]:
+            hit_anything = True
+            temp_rec = hit_out[1]
+            temp_rec.p += self.offset
+            temp_rec.set_face_normal(moved_r, temp_rec.outward_normal)
+            return (hit_anything, temp_rec)
+        else:
+            return (False, None)
+        
+    def bounding_box(self, time0, time1):
+        output_box = self.ptr.bounding_box(time0, time1)
+        if not output_box:
+            return None
+        else:
+            return aabbs.aabb(output_box.min + self.offset, output_box.max + self.offset)
+        
+    def set_material(self, mat):
+        self.ptr.set_material(mat)
+        
+class recolor(hittable):
+    def __init__(self, p, mat):
+        if isinstance(p, hittable):
+            self.ptr = p
+        else:
+            raise TypeError()
+        if isinstance(mat, materials.material):
+            self.material = mat
+        else:
+            raise TypeError()
+    
+    def hit(self, r, t_min, t_max, rec):
+        if not isinstance(r, ray.ray):
+            raise TypeError()
+        if not isinstance(t_min, float):
+            raise TypeError()
+        if not isinstance(t_max, float):
+            raise TypeError()
+        if not isinstance(rec, hit_record):
+            raise TypeError()
+            
+        temp_rec = hit_record()
+        hit_anything = False
+
+        hit_out = self.ptr.hit(r, t_min, t_max, temp_rec)
+        
+        if hit_out[0]:
+            hit_anything = True
+            temp_rec = hit_out[1]
+            temp_rec.material = self.material
+            return (hit_anything, temp_rec)
+        else:
+            return (False, None)
+        
+    def bounding_box(self, time0, time1):
+        output_box = self.ptr.bounding_box(time0, time1)
+        if not output_box:
+            return None
+        else:
+            return output_box
+       
+       

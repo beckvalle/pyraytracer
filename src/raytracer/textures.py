@@ -65,7 +65,18 @@ class checker_texture(texture):
 
 # creates a random noise grey checker with initial perlin noise
 class noise_texture(texture):
-    def __init__(self):
+    def __init__(self, sc=None, c=None):
+        if isinstance(sc, float) or sc is None:
+            self.scale = sc
+        else:
+            raise TypeError()
+        if isinstance(c, raytracer.color) or c is None:
+            if c is None:
+                self.pcolor = raytracer.color(1.0, 1.0, 1.0)
+            else:
+                self.pcolor = c
+        else:
+            raise TypeError()
         self.pnoise = perlins.perlin()
     
     def value(self, u, v, p):
@@ -73,7 +84,11 @@ class noise_texture(texture):
         if not isinstance(p, raytracer.vec3):
             raise TypeError()
             
-        return raytracer.color(1.0, 1.0, 1.0) * self.pnoise.noise(p)
+        if self.scale is not None:
+            return self.pcolor * 0.5 * (1.0 + math.sin(self.scale * p.z) 
+                                        + 10 * self.pnoise.turb(p))
+        else:
+            return self.pcolor * self.pnoise.noise(p)
 
 # maps an external image texture
 class image_texture(texture):
