@@ -138,7 +138,7 @@ def make_final_scene():
     blue = materials.lambertian(color(0.075, 0.161, 0.294))
     green = materials.lambertian(color(0.12, 0.45, 0.15))
     white = materials.lambertian(color(0.73, 0.73, 0.73))
-    perlin_texture = materials.lambertian(textures.noise_texture(4.0), color(1.0, 0.93, 0.8))
+    perlin_texture = materials.lambertian(textures.noise_texture(4.0, color(1.0, 0.93, 0.8)))
     earth_texture = materials.lambertian(textures.image_texture("earthmap.jpg"))
     glass = materials.dielectric(1.5)
     metal = materials.metal(color(0.7, 0.6, 0.5), 0.0)
