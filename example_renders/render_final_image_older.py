@@ -138,23 +138,23 @@ def make_final_scene():
     blue = materials.lambertian(color(0.075, 0.161, 0.294))
     green = materials.lambertian(color(0.12, 0.45, 0.15))
     white = materials.lambertian(color(0.73, 0.73, 0.73))
-    perlin_texture = materials.lambertian(textures.noise_texture(4.0), color(1.0, 0.93, 0.8))
+    perlin_texture = materials.lambertian(textures.noise_texture(4.0))
     earth_texture = materials.lambertian(textures.image_texture("earthmap.jpg"))
     glass = materials.dielectric(1.5)
     metal = materials.metal(color(0.7, 0.6, 0.5), 0.0)
     checker = materials.lambertian(textures.checker_texture(color(0.01, 0.01, 0.01), color(0.9, 0.9, 0.9)))
     
-    main_box = hittables.box(point3(-4.0, 0.0, -6.0), point3(-3.5, 8.0, -5.0), orange)
+    main_box = hittables.box(point3(-4.0, 0.0, -5.0), point3(-3.5, 6.0, -6.0), orange)
     objects.add(main_box)
     box_trans = hittables.translate(main_box, vec3(1.0, 0.0, 0.0))
     objects.add(box_trans)
     box_trans = hittables.translate(box_trans, vec3(1.0, 0.0, 0.0))
     objects.add(box_trans)
     
-    base_sphere = hittables.sphere(point3(-6.0, 1.25, -1.0), 1.25, blue)
+    base_sphere = hittables.sphere(point3(-6.0, 0.75, -1.0), 0.75, glass)
     objects.add(base_sphere)
     sphere_shift = hittables.translate(base_sphere, vec3(3, 0.0, 0.0))
-    sphere_shift = hittables.recolor(sphere_shift, glass)
+    sphere_shift = hittables.recolor(sphere_shift, blue)
     objects.add(sphere_shift)
     sphere_shift = hittables.translate(sphere_shift, vec3(3, 0.0, 0.0))
     sphere_shift = hittables.recolor(sphere_shift, earth_texture)
@@ -172,17 +172,17 @@ def make_final_scene():
     for a in (-4, -2, 0, 2, 4):
         for b in (0, 1, 2, 3):
             choose_mat = rweekend.random_double()
-            center = point3(a + 1.2 * rweekend.random_double(), abs(0.3 * rweekend.random_double()), b + abs(0.9 * rweekend.random_double()))
+            center = point3(a + 0.9 * rweekend.random_double(), 0.0, b + abs(0.9 * rweekend.random_double()))
             #print(center)
             
-            if (choose_mat < 0.5):
+            if (choose_mat < 0.8):
                 # diffuse sphere
                 albedo = color.random() * color.random()
                 sphere_material = materials.lambertian(albedo)
                 transf_sphere = hittables.translate(base_small_sphere, center)
                 transf_sphere = hittables.recolor(transf_sphere, sphere_material)
                 objects.add(transf_sphere)
-            elif (choose_mat < 0.8):
+            elif (choose_mat < 0.95):
                 # metal sphere
                 albedo = color.random(0.5, 1.0)
                 fuzz = rweekend.random_double(0.0, 0.5)
@@ -190,21 +190,17 @@ def make_final_scene():
                 transf_sphere = hittables.translate(base_small_sphere, center)
                 transf_sphere = hittables.recolor(transf_sphere, sphere_material)
                 objects.add(transf_sphere)
-            elif (choose_mat < 0.9):
+            else:
                 # moving sphere
                 albedo = color.random() * color.random()
                 sphere_material = materials.lambertian(albedo)
-                center2 = center + vec3(0.0, rweekend.random_double(0.0, 1.0), 0.0) # add moving sphere
+                center2 = center + vec3(0.0, rweekend.random_double(0.0, 3.0), 0.0) # add moving sphere
                 objects.add(hittables.moving_sphere(center, center2, 0.0, 1.0, 0.2, sphere_material))
-            else:
-                # glass sphere
-                sphere_material = materials.dielectric(1.5)
-                objects.add(hittables.sphere(center, 0.2, sphere_material))
     
-    objects.add(hittables.xz_rect(-50.0, 50.0, -50.0, 50.0, 0.0, perlin_texture))
+    objects.add(hittables.xz_rect(-50.0, 50.0, -50.0, 50.0, 0.0, white))
     
     difflight = materials.diffuse_light(color(6, 6, 6))
-    objects.add(hittables.sphere(point3(6.0, 9.0, 6.0), 5.0, difflight))
+    objects.add(hittables.sphere(point3(6.0, 8.0, 6.0), 5.0, difflight))
     
     return objects
 
@@ -291,7 +287,7 @@ print("start time: ", start_time.strftime("%H:%M:%S"))
 
 # render image
 outimg = writeimg.writeppm(image_width, image_height,
-                           'final_outfile_100.ppm', 'P3', 255)
+                           'outfile_100.ppm', 'P3', 255)
 outimg.write_head()
 for j in range(image_height-1, -1, -1):
     sys.stdout.write("\r%d%%" % j)
