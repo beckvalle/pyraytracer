@@ -280,9 +280,10 @@ cam = camera.camera(lookfrom, lookat, vup, 20.0, aspect_ratio,
 image_width = 650
 #image_width = 200
 image_height = math.floor(image_width / aspect_ratio)
-samples_per_pixel = 100 
-max_depth = 30
-# 500/30
+samples_per_pixel = 3 
+max_depth = 3
+# 300 spp / 30 md - about 31 hours to run
+# 3 spp / 3 md - about 16 minutes to run
 
 # print start time
 tz_CH = pytz.timezone('America/Chicago') 
